@@ -120,12 +120,12 @@ Function cTable(width=0, height=0)
 	If width <= 0 Then
 		free_width= window\width - window\creator_x
 		width = free_width - width
-		xFailIf(width <= 0, "cColumn", "Automatic width calculation result is negative/zero: "+width)
+		xFailIf(width <= 0, "cTable", "Automatic width calculation result is negative/zero: "+width)
 	EndIf
 	If height <= 0 Then
 		free_height = window\height - window\creator_y
 		height = free_height - height
-		xFailIf(height <= 0, "cColumn", "Automatic height calculation result is negative/zero: "+height)
+		xFailIf(height <= 0, "cTable", "Automatic height calculation result is negative/zero: "+height)
 	EndIf
 	table.zxc_Table = New(zxc_Table)
 	table\id = table
@@ -184,7 +184,7 @@ Function cRow(height=0)
 	If height <= 0 Then
 		free_height = table\height - table\creator_y
 		height = free_height - height
-		xFailIf(height <= 0, "cColumn", "Automatic height calculation result is negative/zero: "+height)
+		xFailIf(height <= 0, "cRow", "Automatic height calculation result is negative/zero: "+height)
 	EndIf
 	row.zxc_Row = New(zxc_Row)
 	row\id = row
