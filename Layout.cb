@@ -78,7 +78,7 @@ Function cWindow(background_color$, mask_color$, width=0,height=0, title$="", sp
 EndFunction
 
 Function gWindow()
-	return zxc_CurrentWindow
+	Return zxc_CurrentWindow
 EndFunction
 
 Function gWindowBackgroundColor()
@@ -484,7 +484,7 @@ EndFunction
 // Internal functions
 
 Function zxc_UpdateScreenResolution()
-	bits = 32 // Hard coded to 32. Could be 16 also, but I guess it's never needed.
+	bits = 32 // Hard coded To 32. Could be 16 also, but I guess it's never needed.
 	changed = False
 	If zxc_CurrentScreenMode <> gWindowScreenMode() Then changed = True
 	If ScreenWidth() <> gWindowWidth() Then changed = True
