@@ -165,11 +165,17 @@ Function xTableMoveCreatorY(height,table_id=0)
 	table\creator_y = table\creator_y + height + window\spacing
 EndFunction
 
+// 
+// @param int height If positive, defines an explicit height for the row. If 0, the height will be automatically determined from available space in the container table. If below zero, the automatic height will be reduced by the defined amount.
 Function cRow(height=0)
 	xFailIf(Not gTable(), "cRow", "You need t"+"o create a table b"+"efore creating a row.")
-	If height = 0 Then height = gTableHeight()
-	row.zxc_Row = New(zxc_Row)
 	table.zxc_Table = gTable()
+	If height <= 0 Then
+		free_height = table\height - table\creator_y
+		height = free_height - height
+		xFailIf(height <= 0, "cColumn", "Automatic height calculation result is negative/zero: "+height)
+	EndIf
+	row.zxc_Row = New(zxc_Row)
 	row\id = row
 	row\table_id = table
 	row\height = height
@@ -196,11 +202,17 @@ Function sRow(row)
 	Return zxc_CurrentRow
 EndFunction
 
+//
+// @param int width If positive, defines an explicit width for the column. If 0, the width will be automatically determined from available space in the container table. If below zero, the automatic width will be reduced by the defined amount.
 Function cColumn(width=0)
 	xFailIf(Not gTable(), "cColumn", "You need t"+"o create a table b"+"efore creating a column.")
-	If width = 0 Then width = gTableWidth()
-	column.zxc_Column = New(zxc_Column)
 	table.zxc_Table = gTable()
+	If width <= 0 Then
+		free_width= table\width - table\creator_x
+		width = free_width - width
+		xFailIf(width <= 0, "cColumn", "Automatic width calculation result is negative/zero: "+width)
+	EndIf
+	column.zxc_Column = New(zxc_Column)
 	column\id = column
 	column\table_id = table
 	column\width = width
