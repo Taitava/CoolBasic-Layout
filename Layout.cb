@@ -13,6 +13,8 @@ Type zxc_Window
 	Field screen_mode
 	Field creator_x
 	Field creator_y
+	Field background_color$
+	Field mask_color$
 EndType
 
 Global zxc_CurrentTable
@@ -58,7 +60,7 @@ EndType
 
 // Public functions
 
-Function cWindow(width=0,height=0, title$="", spacing=10, screen_mode = 1)
+Function cWindow(background_color$, mask_color$, width=0,height=0, title$="", spacing=10, screen_mode = 1)
 	If width = 0 Then width = ScreenWidth()
 	If height = 0 Then height = ScreenHeight()
 	window.zxc_Window = New(zxc_Window)
@@ -70,11 +72,23 @@ Function cWindow(width=0,height=0, title$="", spacing=10, screen_mode = 1)
 	window\screen_mode = screen_mode
 	window\creator_x = spacing // Just To apply spacing
 	window\creator_y = spacing
+	window\background_color = background_color
+	window\mask_color = mask_color
 	Return sWindow(window)
 EndFunction
 
 Function gWindow()
 	return zxc_CurrentWindow
+EndFunction
+
+Function gWindowBackgroundColor()
+	window.zxc_Window = zxc_CurrentWindow
+	Return window\background_color
+EndFunction
+
+Function gWindowMaskColor()
+	window.zxc_Window = zxc_CurrentWindow
+	Return window\mask_color
 EndFunction
 
 //
@@ -328,6 +342,25 @@ Function sResetCellCaret(cell=0)
 	sCellCaret(0,0, cell)
 EndFunction
 
+Function xResetCell(cell=0)
+	sResetCellCaret(cell)
+	xResetCellCanvas(cell)
+EndFunction
+
+Function xResetCellCanvas(cell=0)
+	old_buffer = gDrawingBuffer()
+	xDrawToCell(cell)
+	sClsColor(gWindowBackgroundColor()) // TODO: Maybe avoid using ClsColor And just draw a Box instead?
+	Cls
+	xDrawTo(old_buffer)
+EndFunction
+
+Function xMaskImage(img, colour$)
+	xFailIf(CountWords(colour) <> 3, "xMaskImage", "The given parameter is n"+"ot a c"+"olor component s"+"tring: "+colour)
+	xFailIf(Not img, "xMaskImage", "The given parameter is n"+"ot an i"+"mage pointer: "+img)
+	MaskImage img, gRed(colour), gGreen(colour), gBlue(colour)
+EndFunction
+
 Function xRender()
 	zxc_UpdateScreenResolution()
 	DrawToScreen
@@ -335,7 +368,12 @@ Function xRender()
 	DrawScreen
 EndFunction
 
-Function xDrawToCell(cell_id)
+Function gDrawingBuffer()
+	Return zxc_CurrentDrawingBuffer
+EndFunction
+
+Function xDrawToCell(cell_id=0)
+	If Not cell_id Then cell_id = gCell()
 	cell.zxc_Cell = cell_id
 	xDrawToImage(cell\canvas)
 EndFunction
@@ -348,6 +386,16 @@ EndFunction
 Function xDrawToScreen()
 	DrawToScreen
 	zxc_CurrentDrawingBuffer = False // Do Not set To SCREEN() because the result of SCREEN() will change If SCREEN resolution changes.
+EndFunction
+
+Function xDrawTo(buffer)
+	If buffer Then
+		// The buffer is an Image
+		xDrawToImage(buffer)
+	Else
+		// The buffer is SCREEN()
+		xDrawToScreen()
+	EndIf
 EndFunction
 
 Function xX(adjust_afterwards=0)
@@ -461,6 +509,11 @@ EndFunction
 Function zxc_InitializeCellCanvas(cell_id)
 	cell.zxc_Cell = cell_id
 	cell\canvas = MakeImage(cell\width,cell\height)
+	row.zxc_Row = cell\row_id
+	table.zxc_Table = row\table_id
+	window.zxc_Window = table\window_id
+	xMaskImage(cell\canvas, window\mask_color)
+	xResetCellCanvas(cell) // Paints the canvas with a correct background Color.
 EndFunction
 
 Function zxc_RenderCells()
