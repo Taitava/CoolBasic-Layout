@@ -119,12 +119,12 @@ Function cTable(width=0, height=0)
 	window.zxc_Window = gWindow()
 	If width <= 0 Then
 		free_width= window\width - window\creator_x
-		width = free_width - width
+		width = free_width - Abs(width) // width is negative.
 		xFailIf(width <= 0, "cTable", "Automatic width calculation result is negative/zero: "+width)
 	EndIf
 	If height <= 0 Then
 		free_height = window\height - window\creator_y
-		height = free_height - height
+		height = free_height - Abs(height) // height is negative.
 		xFailIf(height <= 0, "cTable", "Automatic height calculation result is negative/zero: "+height)
 	EndIf
 	table.zxc_Table = New(zxc_Table)
@@ -183,7 +183,7 @@ Function cRow(height=0)
 	table.zxc_Table = gTable()
 	If height <= 0 Then
 		free_height = table\height - table\creator_y
-		height = free_height - height
+		height = free_height - Abs(height) // height is negative.
 		xFailIf(height <= 0, "cRow", "Automatic height calculation result is negative/zero: "+height)
 	EndIf
 	row.zxc_Row = New(zxc_Row)
@@ -220,7 +220,8 @@ Function cColumn(width=0)
 	table.zxc_Table = gTable()
 	If width <= 0 Then
 		free_width= table\width - table\creator_x
-		width = free_width - width
+		width = free_width - Abs(width) // width is negative.
+		SetWindow free_width + " = " + table\width + " - " + table\creator_x
 		xFailIf(width <= 0, "cColumn", "Automatic width calculation result is negative/zero: "+width)
 	EndIf
 	column.zxc_Column = New(zxc_Column)
