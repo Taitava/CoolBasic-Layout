@@ -290,8 +290,6 @@ Function xRender()
 	DrawToScreen
 	zxc_RenderCells()
 	DrawScreen
-	zxc_CaretX = 0
-	zxc_CaretY = 0
 EndFunction
 
 Function xDrawToCell(cell_id)
@@ -331,7 +329,7 @@ EndFunction
 Function xText(txt$, adjust_x=0, adjust_y=0)
 	x = xX(TextWidth(txt+" "))
 	y = xY()
-	If zxc_IsDrawingToImage() Then y = y * -1 // Fix a CB bug: when drawing To images, Text y axel is reversed.
+	If zxc_IsDrawingToImage() Then y = y * -1 // Fixes a CB bug: when drawing To images, Text y axel is reversed.
 	Text x, y, txt
 EndFunction
 
@@ -396,8 +394,8 @@ EndFunction
 
 Function zxc_UpdateScreenResolution()
 	bits = 32 // Hard coded to 32. Could be 16 also, but I guess it's never needed.
-	changed = false
-	If zxc_CurrentScreenMode <> gWindowScreenMode() Then changed = true
+	changed = False
+	If zxc_CurrentScreenMode <> gWindowScreenMode() Then changed = True
 	If ScreenWidth() <> gWindowWidth() Then changed = True
 	If ScreenHeight() <> gWindowHeight() Then changed = True
 	If changed Then
@@ -421,14 +419,6 @@ Function zxc_InitializeCellCanvas(cell_id)
 	cell.zxc_Cell = cell_id
 	cell\canvas = MakeImage(cell\width,cell\height)
 EndFunction
-
-'Function zxc_DrawToCurrentBuffer()
-'	If zxc_CurrentDrawingBuffer Then
-'		DrawToImage zxc_CurrentDrawingBuffer
-'	Else
-'		DrawToScreen
-'	EndIf
-'EndFunction
 
 Function zxc_RenderCells()
 	For cell.zxc_Cell = Each zxc_Cell
