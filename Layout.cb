@@ -344,6 +344,54 @@ Function xFailIf(condition, context$, message$)
 EndFunction
 
 
+// Color related functions
+
+//
+// Combines a three component RGB color to a single string value. The result can be used in any Layout functions that handle colors.
+// Unlike most other "c" prefixed creator functions, cColor() does not store its result in memory, so the resulting color is easy to throw away - no need to explicitly delete anything.
+//
+// @param int r A red color component.
+// @param int g A green color component.
+// @param int b A blue color component.
+// @return string
+Function cColor(r,g,b)
+	Return r+" "+g+" "+b 
+EndFunction
+
+//
+// Same as cColor(), but uses the CB's current drawing color, so does not take any parameters.
+//
+// @return string
+Function gColor()
+	Return cColor(getRGB(RED), getRGB(GREEN), getRGB(BLUE))
+EndFunction
+
+Function gRed(colour$)
+	xFailIf(CountWords(colour) <> 3, "gRed", "The given parameter is n"+"ot a c"+"olor component s"+"tring: "+colour)
+	Return Int(GetWord(colour, RED))
+EndFunction
+
+Function gGreen(colour$)
+	xFailIf(CountWords(colour) <> 3, "gGreen", "The given parameter is n"+"ot a c"+"olor component s"+"tring: "+colour)
+	Return Int(GetWord(colour, GREEN))
+EndFunction
+
+Function gBlue(colour$)
+	xFailIf(CountWords(colour) <> 3, "gBlue", "The given parameter is n"+"ot a c"+"olor component s"+"tring: "+colour)
+	Return Int(GetWord(colour, BLUE))
+EndFunction
+
+Function sColor(colour$)
+	xFailIf(CountWords(colour) <> 3, "sColor", "The given parameter is n"+"ot a c"+"olor component s"+"tring: "+colour)
+	Color gRed(colour), gGreen(colour), gBlue(colour)
+EndFunction
+
+Function sClsColor(colour$)
+	xFailIf(CountWords(colour) <> 3, "sClsColor", "The given parameter is n"+"ot a c"+"olor component s"+"tring: "+colour)
+	ClsColor gRed(colour), gGreen(colour), gBlue(colour)
+EndFunction
+
+
 // Internal functions
 
 Function zxc_UpdateScreenResolution()
