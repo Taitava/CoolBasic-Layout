@@ -1,0 +1,407 @@
+// Definitions
+
+Global zxc_CurrentScreenMode : zxc_CurrentScreenMode = cbWindowed // Assume that the initial screen mode is 'windowed'. It might not be true if the developer has called the SCREEN command themselves, but let's just assume that this library is the only place where SCREEN is called.
+Global zxc_CurrentDrawingBuffer
+
+Global zxc_CurrentWindow
+Type zxc_Window
+	Field id
+	Field width
+	Field height
+	Field title$
+	Field spacing
+	Field screen_mode
+	Field creator_x
+	Field creator_y
+EndType
+
+Global zxc_CurrentTable
+Type zxc_Table
+	Field id
+	Field window_id
+	Field x
+	Field y
+	Field width
+	Field height
+	Field creator_x
+	Field creator_y
+EndType
+
+Global zxc_CurrentRow
+Type zxc_Row
+	Field id
+	Field table_id
+	Field y
+	Field height
+EndType
+
+Global zxc_CurrentColumn
+Type zxc_Column
+	Field id
+	Field table_id
+	Field x
+	Field width
+EndType
+
+Global zxc_CurrentCell
+Type zxc_Cell
+	Field id
+	Field row_id
+	Field column_id
+	Field width
+	Field height
+	Field canvas
+	Field caret_x
+	Field caret_y
+EndType
+
+
+// Application
+
+cWindow(1024,768, "My window", 10)
+cTable()
+cRow()
+cColumn(200)
+cCell()
+xText("Hello World")
+xReturn()
+xText("Moi!")
+xText("Moi vaan!")
+cColumn(200)
+cCell()
+xText("Joku")
+
+
+Repeat
+	xRender()
+Forever
+
+
+// Public functions
+
+Function cWindow(width=0,height=0, title$="", spacing=10, screen_mode = 1)
+	If width = 0 Then width = ScreenWidth()
+	If height = 0 Then height = ScreenHeight()
+	window.zxc_Window = New(zxc_Window)
+	window\id = window
+	window\width = width
+	window\height = height
+	window\title = title
+	window\spacing = spacing
+	window\screen_mode = screen_mode
+	window\creator_x = spacing // Just To apply spacing
+	window\creator_y = spacing
+	Return sWindow(window)
+EndFunction
+
+Function gWindow()
+	return zxc_CurrentWindow
+EndFunction
+
+Function gWindowWidth()
+	window.zxc_Window = zxc_CurrentWindow
+	Return window\width
+EndFunction
+
+Function gWindowHeight()
+	window.zxc_Window = zxc_CurrentWindow
+	Return window\height
+EndFunction
+
+Function gWindowScreenMode()
+	window.zxc_Window = zxc_CurrentWindow
+	Return window\screen_mode
+EndFunction
+
+Function sWindow(window)
+	zxc_CurrentWindow = window
+	sTable(False) // Also calls sRow(False), sColumn(False) and sCell(False)
+	zxc_UpdateScreenResolution()
+	Return zxc_CurrentWindow
+EndFunction
+
+Function xWindowMoveCreator(width,height,window_id=0)
+	If Not window_id Then window_id = gWindow()
+	window.zxc_Window = window_id
+	// Move rightwards
+	window\creator_x = window\creator_x + width + window\spacing
+	If window\creator_x >= window\width Then
+		// Move downwards And back To Left
+		window\creator_x = 0
+		window\creator_y = window\creator_y + height + window\spacing
+	EndIf
+EndFunction
+
+Function cTable(width=0, height=0)
+	xFailIf(Not gWindow(), "cTable", "You need t"+"o create a window b"+"efore creating a table.")
+	If height = 0 Then height = gWindowHeight()
+	If width = 0 Then width = gWindowWidth()
+	window.zxc_Window = gWindow()
+	table.zxc_Table = New(zxc_Table)
+	table\id = table
+	table\window_id = window
+	table\width = width
+	table\height = height
+	
+	// Set placement
+	table\x = window\creator_x
+	table\y = window\creator_y
+	xWindowMoveCreator(width, height, table\window_id)
+	
+	Return sTable(table)
+EndFunction
+
+Function gTable()
+	Return zxc_CurrentTable
+EndFunction
+
+Function gTableWidth()
+	table.zxc_Table = zxc_CurrentTable
+	Return table\width
+EndFunction
+
+Function gTableHeight()
+	table.zxc_Table = zxc_CurrentTable
+	Return table\height
+EndFunction
+
+Function sTable(table)
+	zxc_CurrentTable = table
+	sRow(False) // Also calls sCell(false)
+	sColumn(False) // Also calls sCell(false)
+	Return zxc_CurrentTable
+EndFunction
+
+Function xTableMoveCreatorX(width,table_id=0)
+	If Not table_id Then table_id = gTable()
+	table.zxc_Table = table_id
+	window.zxc_Window = table\window_id
+	table\creator_x = table\creator_x + width + window\spacing
+EndFunction
+
+Function xTableMoveCreatorY(height,table_id=0)
+	If Not table_id Then table_id = gTable()
+	table.zxc_Table = table_id
+	window.zxc_Window = table\window_id
+	table\creator_y = table\creator_y + height + window\spacing
+EndFunction
+
+Function cRow(height=0)
+	xFailIf(Not gTable(), "cRow", "You need t"+"o create a table b"+"efore creating a row.")
+	If height = 0 Then height = gTableHeight()
+	row.zxc_Row = New(zxc_Row)
+	table.zxc_Table = gTable()
+	row\id = row
+	row\table_id = table
+	row\height = height
+
+	// Set placement
+	row\y = table\creator_y
+	xTableMoveCreatorY(height, table)
+	
+	Return sRow(row)
+EndFunction
+
+Function gRow()
+	Return zxc_CurrentRow
+EndFunction
+
+Function gRowHeight()
+	row.zxc_Row = zxc_CurrentRow
+	Return row\height
+EndFunction
+
+Function sRow(row)
+	zxc_CurrentRow = row
+	sCell(False)
+	Return zxc_CurrentRow
+EndFunction
+
+Function cColumn(width=0)
+	xFailIf(Not gTable(), "cColumn", "You need t"+"o create a table b"+"efore creating a column.")
+	If width = 0 Then width = gTableWidth()
+	column.zxc_Column = New(zxc_Column)
+	table.zxc_Table = gTable()
+	column\id = column
+	column\table_id = table
+	column\width = width
+	
+	// Set placement
+	column\x = table\creator_x
+	xTableMoveCreatorX(width, table)
+	
+	Return sColumn(column)
+EndFunction
+
+Function gColumn()
+	Return zxc_CurrentColumn
+EndFunction
+
+Function gColumnWidth()
+	column.zxc_Column = zxc_CurrentColumn
+	Return column\width
+EndFunction
+
+Function sColumn(column)
+	zxc_CurrentColumn = column
+	sCell(False)
+	Return zxc_CurrentColumn
+EndFunction
+
+Function cCell(width=0, height=0)
+	xFailIf(Not gColumn(), "cCell", "You need t"+"o create a column b"+"efore creating a cell.")
+	xFailIf(Not gRow(), "cCell", "You need t"+"o create a row b"+"efore creating a cell.")
+	If width = 0 Then width = gColumnWidth()
+	If height = 0 Then height = gRowHeight()
+	cell.zxc_Cell = New(zxc_Cell)
+	cell\id = cell
+	cell\row_id = gRow()
+	cell\column_id = gColumn()
+	cell\width = width
+	cell\height = height
+	zxc_InitializeCellCanvas(cell)
+	Return sCell(cell)
+EndFunction
+
+Function gCell()
+	Return zxc_CurrentCell
+EndFunction
+
+Function gCellWidth()
+	cell.zxc_Cell = zxc_CurrentCell
+	Return cell\width
+EndFunction
+
+Function gCellHeight()
+	cell.zxc_Cell = zxc_CurrentCell
+	Return cell\height
+EndFunction
+
+Function sCell(cell)
+	zxc_CurrentCell = cell
+	If cell Then xDrawToCell(cell)
+	Return zxc_CurrentCell
+EndFunction
+
+Function xRender()
+	zxc_UpdateScreenResolution()
+	DrawToScreen
+	zxc_RenderCells()
+	DrawScreen
+	zxc_CaretX = 0
+	zxc_CaretY = 0
+EndFunction
+
+Function xDrawToCell(cell_id)
+	cell.zxc_Cell = cell_id
+	xDrawToImage(cell\canvas)
+EndFunction
+
+Function xDrawToImage(img)
+	DrawToImage img
+	zxc_CurrentDrawingBuffer = img
+EndFunction
+
+Function xDrawToScreen()
+	DrawToScreen
+	zxc_CurrentDrawingBuffer = False // Do Not set To SCREEN() because the result of SCREEN() will change If SCREEN resolution changes.
+EndFunction
+
+Function xX(adjust_afterwards=0)
+	cell.zxc_Cell = gCell()
+	x = cell\caret_x
+	cell\caret_x = x + adjust_afterwards
+	Return x
+EndFunction
+
+Function xY(adjust_afterwards=0, set_x_to_zero=0)
+	cell.zxc_Cell = gCell()
+	y = cell\caret_y
+	cell\caret_y = y + adjust_afterwards
+	If set_x_to_zero Then cell\caret_x = 0 // Return to left
+	Return y
+EndFunction
+
+Function xReturn()
+	xY(TextHeight("W"),true)
+EndFunction
+
+Function xText(txt$, adjust_x=0, adjust_y=0)
+	x = xX(TextWidth(txt+" "))
+	y = xY()
+	If zxc_IsDrawingToImage() Then y = y * -1 // Fix a CB bug: when drawing To images, Text y axel is reversed.
+	Text x, y, txt
+EndFunction
+
+Function xFail(context$, message$)
+	MakeError context + ": " +message
+EndFunction
+
+Function xFailIf(condition, context$, message$)
+	If condition Then xFail(context, message)
+EndFunction
+
+
+// Internal functions
+
+Function zxc_UpdateScreenResolution()
+	bits = 32 // Hard coded to 32. Could be 16 also, but I guess it's never needed.
+	changed = false
+	If zxc_CurrentScreenMode <> gWindowScreenMode() Then changed = true
+	If ScreenWidth() <> gWindowWidth() Then changed = True
+	If ScreenHeight() <> gWindowHeight() Then changed = True
+	If changed Then
+		If (cbResizable = gWindowScreenMode()) Then
+			// If setting the window mode to cbSizable, we need to first update the screen dimensions in a preliminary SCREEN call - otherwise we would end up having scretched graphics.
+			SCREEN gWindowWidth(), gWindowHeight(), bits, cbWindowed
+		EndIf
+		SCREEN gWindowWidth(), gWindowHeight(), bits, gWindowScreenMode()
+		zxc_InitializeCellsCanvases() // Recreate empty canvas images because SCREEN destroyed them. Note that this does Not draw any content To the canvases.
+		dLoadGraphics(zxc_CurrentWindow)
+	EndIf
+EndFunction
+
+Function zxc_InitializeCellsCanvases()
+	For cell.zxc_Cell = Each zxc_Cell
+		zxc_InitializeCellCanvas(cell)
+	Next cell
+EndFunction
+
+Function zxc_InitializeCellCanvas(cell_id)
+	cell.zxc_Cell = cell_id
+	cell\canvas = MakeImage(cell\width,cell\height)
+EndFunction
+
+'Function zxc_DrawToCurrentBuffer()
+'	If zxc_CurrentDrawingBuffer Then
+'		DrawToImage zxc_CurrentDrawingBuffer
+'	Else
+'		DrawToScreen
+'	EndIf
+'EndFunction
+
+Function zxc_RenderCells()
+	For cell.zxc_Cell = Each zxc_Cell
+		zxc_RenderCell(cell)
+	Next cell
+EndFunction
+
+Function zxc_RenderCell(cell_id)
+	cell.zxc_Cell = cell_id
+	row.zxc_Row = cell\row_id
+	column.zxc_Column = cell\column_id
+	table.zxc_Table = row\table_id
+	DrawImage cell\canvas, table\x + column\x, table\y + row\y
+EndFunction
+
+Function zxc_IsDrawingToImage()
+	Return zxc_CurrentDrawingBuffer > 0
+EndFunction
+
+
+// Hooks
+
+Function dLoadGraphics$(window)
+	// ... The developer can override this function by defining another function with the same name but leaving the $ out from the name.
+EndFunction
+
