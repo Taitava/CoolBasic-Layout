@@ -111,11 +111,22 @@ Function xWindowMoveCreator(width,height,window_id=0)
 	EndIf
 EndFunction
 
+// 
+// @param int width If positive, defines an explicit width for the table. If 0, the width will be automatically determined from available space in the container window. If below zero, the automatic width will be reduced by the defined amount.
+// @param int height If positive, defines an explicit height for the table. If 0, the height will be automatically determined from available space in the container window. If below zero, the automatic height will be reduced by the defined amount.
 Function cTable(width=0, height=0)
 	xFailIf(Not gWindow(), "cTable", "You need t"+"o create a window b"+"efore creating a table.")
-	If height = 0 Then height = gWindowHeight()
-	If width = 0 Then width = gWindowWidth()
 	window.zxc_Window = gWindow()
+	If width <= 0 Then
+		free_width= window\width - window\creator_x
+		width = free_width - width
+		xFailIf(width <= 0, "cColumn", "Automatic width calculation result is negative/zero: "+width)
+	EndIf
+	If height <= 0 Then
+		free_height = window\height - window\creator_y
+		height = free_height - height
+		xFailIf(height <= 0, "cColumn", "Automatic height calculation result is negative/zero: "+height)
+	EndIf
 	table.zxc_Table = New(zxc_Table)
 	table\id = table
 	table\window_id = window
