@@ -296,10 +296,36 @@ Function gCellHeight()
 	Return cell\height
 EndFunction
 
-Function sCell(cell)
+Function sCell(cell, reset_caret=1)
 	zxc_CurrentCell = cell
-	If cell Then xDrawToCell(cell)
+	If cell Then
+		xDrawToCell(cell)
+		sResetCellCaret(cell)
+	EndIf
 	Return zxc_CurrentCell
+EndFunction
+
+Function sCellCaret(x,y, cell_id=0)
+	If Not cell_id Then cell_id = gCell()
+	cell.zxc_Cell = cell_id
+	cell\caret_x = x
+	cell\caret_y = y
+EndFunction
+
+Function sCellCaretX(x, cell_id=0)
+	If Not cell_id Then cell_id = gCell()
+	cell.zxc_Cell = cell_id
+	cell\caret_x = x
+EndFunction
+
+Function sCellCaretY(y, cell_id=0)
+	If Not cell_id Then cell_id = gCell()
+	cell.zxc_Cell = cell_id
+	cell\caret_y = y
+EndFunction
+
+Function sResetCellCaret(cell=0)
+	sCellCaret(0,0, cell)
 EndFunction
 
 Function xRender()
