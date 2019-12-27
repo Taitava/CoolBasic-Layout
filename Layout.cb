@@ -56,27 +56,6 @@ Type zxc_Cell
 EndType
 
 
-// Application
-
-cWindow(1024,768, "My window", 10)
-cTable()
-cRow()
-cColumn(200)
-cCell()
-xText("Hello World")
-xReturn()
-xText("Moi!")
-xText("Moi vaan!")
-cColumn(200)
-cCell()
-xText("Joku")
-
-
-Repeat
-	xRender()
-Forever
-
-
 // Public functions
 
 Function cWindow(width=0,height=0, title$="", spacing=10, screen_mode = 1)
