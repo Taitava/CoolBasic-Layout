@@ -221,7 +221,6 @@ Function cColumn(width=0)
 	If width <= 0 Then
 		free_width= table\width - table\creator_x
 		width = free_width - Abs(width) // width is negative.
-		SetWindow free_width + " = " + table\width + " - " + table\creator_x
 		xFailIf(width <= 0, "cColumn", "Automatic width calculation result is negative/zero: "+width)
 	EndIf
 	column.zxc_Column = New(zxc_Column)
