@@ -77,6 +77,14 @@ Function gWindow()
 	return zxc_CurrentWindow
 EndFunction
 
+//
+// Returns the current title on the window's title bar. Note that it will not return a correct value if you have called SetWindow yourself! You always need to set window titles by calling either sWindowTitle() or cWindow()!
+// @return string
+Function gWindowTitle()
+	window.zxc_Window = zxc_CurrentWindow
+	Return window\title
+EndFunction
+
 Function gWindowWidth()
 	window.zxc_Window = zxc_CurrentWindow
 	Return window\width
@@ -97,6 +105,15 @@ Function sWindow(window)
 	sTable(False) // Also calls sRow(False), sColumn(False) and sCell(False)
 	zxc_UpdateScreenResolution()
 	Return zxc_CurrentWindow
+EndFunction
+
+//
+// Calls SetWindow to change the window title. Also stores the title internally so that it can be retrieved later by calling gWindowTitle().
+// @param string title
+Function sWindowTitle(title$)
+	window.zxc_Window = zxc_CurrentWindow
+	window\title = title
+	SetWindow title
 EndFunction
 
 Function xWindowMoveCreator(width,height,window_id=0)
