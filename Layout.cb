@@ -312,11 +312,11 @@ Function gCellHeight()
 	Return cell\height
 EndFunction
 
-Function sCell(cell, reset_caret=1)
+Function sCell(cell, reset_canvas_and_caret=1)
 	zxc_CurrentCell = cell
 	If cell Then
 		xDrawToCell(cell)
-		sResetCellCaret(cell)
+		If reset_canvas_and_caret Then xResetCell(cell)
 	EndIf
 	Return zxc_CurrentCell
 EndFunction
