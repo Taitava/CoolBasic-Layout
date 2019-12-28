@@ -14,7 +14,6 @@ Type zxc_Window
 	Field creator_x
 	Field creator_y
 	Field background_color$
-	Field mask_color$
 EndType
 
 Global zxc_CurrentTable
@@ -60,7 +59,7 @@ EndType
 
 // Public functions
 
-Function cWindow(background_color$, mask_color$, width=0,height=0, title$="", spacing=10, screen_mode = 1)
+Function cWindow(background_color$, width=0,height=0, title$="", spacing=10, screen_mode = 1)
 	If width = 0 Then width = ScreenWidth()
 	If height = 0 Then height = ScreenHeight()
 	window.zxc_Window = New(zxc_Window)
@@ -73,7 +72,6 @@ Function cWindow(background_color$, mask_color$, width=0,height=0, title$="", sp
 	window\creator_x = spacing // Just To apply spacing
 	window\creator_y = spacing
 	window\background_color = background_color
-	window\mask_color = mask_color
 	Return sWindow(window)
 EndFunction
 
@@ -84,11 +82,6 @@ EndFunction
 Function gWindowBackgroundColor()
 	window.zxc_Window = zxc_CurrentWindow
 	Return window\background_color
-EndFunction
-
-Function gWindowMaskColor()
-	window.zxc_Window = zxc_CurrentWindow
-	Return window\mask_color
 EndFunction
 
 //
@@ -512,7 +505,7 @@ Function zxc_InitializeCellCanvas(cell_id)
 	row.zxc_Row = cell\row_id
 	table.zxc_Table = row\table_id
 	window.zxc_Window = table\window_id
-	xMaskImage(cell\canvas, window\mask_color)
+	xMaskImage(cell\canvas, window\background_color)
 	xResetCellCanvas(cell) // Paints the canvas with a correct background Color.
 EndFunction
 
