@@ -288,7 +288,7 @@ Function cCell(width=0, height=0)
 	cell\width = width
 	cell\height = height
 	zxc_InitializeCellCanvas(cell)
-	Return sCell(cell)
+	Return sCell(cell, False) // False: No need To reset canvas Or caret, As they are already reseted.
 EndFunction
 
 Function gCell()
