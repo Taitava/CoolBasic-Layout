@@ -107,10 +107,12 @@ Function gWindowScreenMode()
 	Return window\screen_mode
 EndFunction
 
-Function sWindow(window)
-	zxc_CurrentWindow = window
+Function sWindow(window_id)
+	window.zxc_Window = window_id
+	zxc_CurrentWindow = window_id
 	sTable(False) // Also calls sRow(False), sColumn(False) and sCell(False)
 	zxc_UpdateScreenResolution()
+	sClsColor(window\background_color)
 	Return zxc_CurrentWindow
 EndFunction
 
