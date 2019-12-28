@@ -293,6 +293,13 @@ Function gCell()
 	Return zxc_CurrentCell
 EndFunction
 
+Function gCellWindow(cell_id)
+	cell.zxc_Cell = cell_id
+	row.zxc_Row = cell\row_id
+	table.zxc_Table = row\table_id
+	Return table\window_id
+EndFunction
+
 Function gCellWidth()
 	cell.zxc_Cell = zxc_CurrentCell
 	Return cell\width
@@ -340,11 +347,13 @@ Function xResetCell(cell=0)
 	xResetCellCanvas(cell)
 EndFunction
 
-Function xResetCellCanvas(cell=0)
+Function xResetCellCanvas(cell_id)
+	cell.zxc_Cell = cell_id
+	window.zxc_Window = gCellWindow(cell)
 	old_buffer = gDrawingBuffer()
 	xDrawToCell(cell)
-	sClsColor(gWindowBackgroundColor()) // TODO: Maybe avoid using ClsColor And just draw a Box instead?
-	Cls
+	sColor(window\background_color)
+	Box 0,0, cell\width,cell\height, True
 	xDrawTo(old_buffer)
 EndFunction
 
