@@ -353,10 +353,12 @@ Function xResetCellCanvas(cell_id)
 	cell.zxc_Cell = cell_id
 	window.zxc_Window = gCellWindow(cell)
 	old_buffer = gDrawingBuffer()
+	old_color$ = gColor()
 	xDrawToCell(cell)
 	sColor(window\background_color)
 	Box 0,0, cell\width,cell\height, True
 	xDrawTo(old_buffer)
+	sColor(old_color)
 EndFunction
 
 Function xMaskImage(img, colour$)
